@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
 import SearchResult from './SearchResult'
+import axios from 'axios';
 
 export default class Search extends Component {
   state = {
     keyword: "",
     url: 'https://secure.toronto.ca/cc_sr_v1/data/swm_waste_wizard_APR?limit=1000',
-    items: [
-      {'title': 'Blue Bins', 'description': ['item 1', 'item 2'], 'starred':true},
-      {'title': 'Red Bins', 'description': ['item 3', 'item 4'], 'starred':false}
-    ]
+    items: {},
   }
 
   __handleChange = (event) => {
@@ -17,7 +15,13 @@ export default class Search extends Component {
   }
 
   _handleClick = () => {
+    const keyword = this.state.keyword;
+    const regex = RegExp(keyword, 'g');
     
+    axios.get(this.state.url).then(x => {
+      let res = x.data.filter(x => regex.exec(x.title) || regex.exec(x.keywords))
+      this.setState({items: res})
+    })
   }
 
   render() {
