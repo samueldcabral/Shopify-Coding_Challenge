@@ -6,7 +6,7 @@ export default class Search extends Component {
   state = {
     keyword: "",
     url: 'https://secure.toronto.ca/cc_sr_v1/data/swm_waste_wizard_APR?limit=1000',
-    items: {},
+    items: []
   }
 
   __handleChange = (event) => {
