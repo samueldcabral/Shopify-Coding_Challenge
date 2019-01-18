@@ -51,7 +51,7 @@ export default class SearchResult extends Component {
     let boldWords = [];
     for(let i = 0; i < str.length; i++){
       if(str[i].includes("<strong>")){
-        console.log(str[i])
+        // console.log(str[i])
   
         let de = str[i].split('<strong>')
         for(let i = 0; i < de.length; i++){
@@ -71,12 +71,21 @@ export default class SearchResult extends Component {
       }
     }
     
-    let htmlTotal = null;
+    let htmlTotal = [];
 
     for(let i = 0; i < str.length; i++){
       if(str[i].includes("<strong>")){
         let a = str[i].split("<strong>");
-        htmlTotal = <li>{a} <strong>{boldWords[0]}</strong></li>
+
+        htmlTotal.push(<li className="liTeste">{a[0]}<strong>{boldWords[i]}</strong></li>);
+      }
+      else if(str[i].includes("<b>")){
+        let a = str[i].split("<b>");
+
+        htmlTotal.push(<li className="liTeste">{a[0]}<strong>{boldWords[i]}</strong></li>);
+      }
+      else{
+        htmlTotal.push(<li className="liTeste">{str[i]}</li>)
       }
     }
 
@@ -87,14 +96,17 @@ export default class SearchResult extends Component {
     const regex = /\w+/gm
     let temp = new DOMParser().parseFromString(str, "text/html");
     let res = this.htmlToElements(temp.documentElement.textContent)
+    // console.log(res)
     let test = this.htmlToElements(res[0].innerHTML)
     test = [...test]
+    console.log(test)
+    console.log('-------------------------------------')
     let final = test.filter(x => x.innerHTML).map(x => x.innerHTML)
     let thise = final.map(x => this.sanitizeTxt(x))
-    console.log(thise)
+    // console.log("thise is" + thise)
 
     let bolds = this.getBoldWords(thise)
-    console.log(bolds +"bolds")
+    // console.log(bolds +"bolds")
 
     return bolds
     // return <h1>samuel</h1>
@@ -131,10 +143,12 @@ export default class SearchResult extends Component {
               <i className={x.starred ? "fa fa-star searchResult__icon searchResult__icon--starred" : "fa fa-star searchResult__icon"} aria-hidden="true" id={index}></i>
               <h4 className="searchResult__h4">{x.title}</h4>
               </span>
-              <ul>
-                <li>
-                  {this.domParser(x.body)}
-                </li>
+              <ul className="searchResult__ul">
+                  {this.domParser(x.body).map(x => {
+                    return <li className="liTeste">{x}</li>
+                  })}
+                {/* <li> */}
+                {/* </li> */}
               </ul>
               {/* {x.description} */}
               {/* <ul className="searchResult__ul">

@@ -22,6 +22,8 @@ export default class Search extends Component {
       let res = x.data.filter(x => regex.exec(x.title) || regex.exec(x.keywords))
       this.setState({items: res})
     })
+
+    console.log(this.state.items)
   }
 
   render() {
