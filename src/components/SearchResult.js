@@ -17,11 +17,42 @@ export default class SearchResult extends Component {
     // console.log(resultArr)
     // console.log("teve")
     // this.setState({resultArr})
+
+
+  getLink = (link) => {
+      let actualLink = link.split("<a href=")[1]
+      actualLink = actualLink.split(`"`)[1]
+      let word = link.split(`">`)[1]
+      word = word.split("</")[0]
+    
+      return {"link": actualLink, "word":word}    
+    }
+
+  convertLink = (text) => {
+    let max = text.split('')
+    let index = []
+    for(let i = 0; i < max.length; i++){
+      if(max[i].charCodeAt(0) == 60 && max[i+1].charCodeAt(0) == 97){
+        index.push({"first": i})
+      }else if(max[i].charCodeAt(0) == 62 && max[i-1].charCodeAt(0) == 97){
+        index.push({"second": i})
+      }
+    }
+    return index
+  } 
+
   htmlToElements = (html) => {
       var template = document.createElement('template');
       template.innerHTML = html;
       return template.content.childNodes;
   }
+
+  htmlToElement = (html) => {
+    var template = document.createElement('template');
+    template.innerHTML = html;
+    return template.content;
+}
+
 
   sanitizeTxt = (txt) => {
     let q = txt.split('')
@@ -47,7 +78,9 @@ export default class SearchResult extends Component {
   }
 
   getBoldWords = (str) => {
+    let htmlTotal = [];
     let boldWords = [];
+
     for(let i = 0; i < str.length; i++){
       if(str[i].includes("<strong>")){
         // console.log(str[i])
@@ -67,10 +100,27 @@ export default class SearchResult extends Component {
             boldWords.push(a[0])
           }
         }
+      }else if(str[i].includes("</a")){
+        let a = this.htmlToElement(str[i])
+        htmlTotal.push(<li>{a}</li>)
+        // console.log(str[i] + "sauel  samuelae daeau")
+        // let index = this.convertLink(str[i]);
+
+        // for(let i = 0; i < index.length; i++){
+        //   if(i % 2 === 0){
+        //     let sbsrt = str[i].slice(index[i]["first"], index[i+1]["second"])
+        //     alert(sbsrt)
+        //     if(sbsrt.startsWith("<a")){
+        //       let objs = this.getLink(sbsrt)
+        //       let result = str[i].replace(sbsrt, <a href={objs["link"]}> {objs["word"]} </a>)
+        //       htmlTotal.push(<li className="liTeste">{result}</li>)
+
+        //     }
+        //   }
+        // }
       }
     }
     
-    let htmlTotal = [];
 
     for(let i = 0; i < str.length; i++){
       if(str[i].includes("<strong>")){
