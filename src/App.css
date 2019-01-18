@@ -1,10 +1,10 @@
 .navbar { 
-  position: fixed;
+  /* position: fixed; */
   display: table;
-  top: 0;
+  /* top: 0; */
   background: linear-gradient(to right, #2c4692, #00a662);
   width: 100%;
-  height: 20%;
+  height: 200px;
 }
 
 .navbar__h1 {
@@ -18,7 +18,7 @@
 .search {
   width: 100%;
   text-align: center;
-  margin: 12% auto 0 auto;
+  margin: 30px auto 0 auto;
 }
 
 .search__input {
@@ -43,7 +43,7 @@
 
 .searchResult {
   display: grid;
-  grid-template-columns: repeat(1fr);
+  grid-template-columns: repeat(2, 1fr);
   grid-template-areas: "Title Description";
   width: 90%;
   margin: auto;
@@ -79,6 +79,11 @@
   font-size: 2rem;
 }
 
+.searchResult__ul li  {
+  margin-bottom: 20px;
+  /* background-color: red; */
+}
+
 .favouritesWrapper{
   background-color: #f5fffa !important;
   widows: 100%;
@@ -89,4 +94,8 @@
   font-size: 3rem;
   padding: 30px 0 0 70px;
   margin: 0;
+}
+
+.noFavourites {
+  display: none;
 }

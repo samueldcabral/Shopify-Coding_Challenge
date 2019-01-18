@@ -9,8 +9,40 @@ export default class Search extends Component {
     items: []
   }
 
+  _handleSubmit = (event) => {
+    event.preventDefault();
+  }
+
+  _handleKeyDown = (event) => {
+    if(event.keyCode == 13){
+      const keyword = this.state.keyword;
+      const regex = RegExp(keyword, 'g');
+    
+      axios.get(this.state.url).then(x => {
+        let res = x.data.filter(x => regex.exec(x.title) || regex.exec(x.keywords))
+        this.setState({items: res})
+      })
+    }
+  
+  
+    // if(event.target.value)
+    // const keyword = this.state.keyword;
+    // const regex = RegExp(keyword, 'g');
+    
+    // axios.get(this.state.url).then(x => {
+    //   let res = x.data.filter(x => regex.exec(x.title) || regex.exec(x.keywords))
+    //   this.setState({items: res})
+    // })
+  }
+
   __handleChange = (event) => {
     const keyword = event.target.value;
+
+    if(event.target.value === ""){
+      setTimeout(() => {
+        this.setState({items: []});
+      }, 300);
+    }
     this.setState({keyword})
   }
 
@@ -22,13 +54,15 @@ export default class Search extends Component {
       let res = x.data.filter(x => regex.exec(x.title) || regex.exec(x.keywords))
       this.setState({items: res})
     })
+
+    console.log(this.state.items)
   }
 
   render() {
     return (
       <div>
-        <form className="search">
-          <input type="input" className="search__input" onChange={this.__handleChange}/>
+        <form className="search" onSubmit={this._handleSubmit}>
+          <input type="input" className="search__input" onChange={this.__handleChange} onKeyDown={this._handleKeyDown}/>
           <span onClick={this._handleClick}>
             <i className="fas fa-search fa-flip-horizontal search__icon"></i>
           </span>

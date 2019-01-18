@@ -2,8 +2,7 @@ import React, { Component } from 'react'
 
 export default class SearchResult extends Component {
   state = {
-    favs: [],
-    
+    favs: []   
   }
 
   // if(regex.exec(x.title) || regex.exec(x.keywords)){
@@ -51,7 +50,7 @@ export default class SearchResult extends Component {
     let boldWords = [];
     for(let i = 0; i < str.length; i++){
       if(str[i].includes("<strong>")){
-        console.log(str[i])
+        // console.log(str[i])
   
         let de = str[i].split('<strong>')
         for(let i = 0; i < de.length; i++){
@@ -71,12 +70,21 @@ export default class SearchResult extends Component {
       }
     }
     
-    let htmlTotal = null;
+    let htmlTotal = [];
 
     for(let i = 0; i < str.length; i++){
       if(str[i].includes("<strong>")){
         let a = str[i].split("<strong>");
-        htmlTotal = <li>{a} <strong>{boldWords[0]}</strong></li>
+
+        htmlTotal.push(<li className="liTeste">{a[0]}<strong>{boldWords[i]}</strong></li>);
+      }
+      else if(str[i].includes("<b>")){
+        let a = str[i].split("<b>");
+
+        htmlTotal.push(<li className="liTeste">{a[0]}<strong>{boldWords[i]}</strong></li>);
+      }
+      else{
+        htmlTotal.push(<li className="liTeste">{str[i]}</li>)
       }
     }
 
@@ -87,14 +95,17 @@ export default class SearchResult extends Component {
     const regex = /\w+/gm
     let temp = new DOMParser().parseFromString(str, "text/html");
     let res = this.htmlToElements(temp.documentElement.textContent)
+    // console.log(res)
     let test = this.htmlToElements(res[0].innerHTML)
     test = [...test]
+    console.log(test)
+    console.log('-------------------------------------')
     let final = test.filter(x => x.innerHTML).map(x => x.innerHTML)
     let thise = final.map(x => this.sanitizeTxt(x))
-    console.log(thise)
+    // console.log("thise is" + thise)
 
     let bolds = this.getBoldWords(thise)
-    console.log(bolds +"bolds")
+    // console.log(bolds +"bolds")
 
     return bolds
     // return <h1>samuel</h1>
@@ -118,47 +129,108 @@ export default class SearchResult extends Component {
 // var td = htmlToElement('<td>foo</td>'),
 //     div = htmlToElement('<div><span>nested</span> <span>stuff</span></div>');
 
+_favoriteItem = (x) => {
+  // alert("Clicou na start " + event.target)
+  x["starred"] = true
+  const favs = [...this.state.favs, {x}]
+  // console.log(favs + "favs")
+  this.setState({favs})
+  // console.log(event.starred)
+}
 
+_unfavoriteItem = (x, index) => {
+  // alert("Clicou na start " + event.target)
+  // alert('this is favorite')
+  x["unstarred"] = true
+  // alert(index)
+  // const favs = this.state.favs.filter(x => {
+  //   alert(x.index)})
+    //  !== index)
+  const favs = this.state.favs.filter(x => {
+    // alert(x.x.index + "x.x.index")
+    // alert(index + "index")
 
+    return x.x.index !== index
+  
+  })
 
+  this.setState({favs})
+  // x["starred"] = true
+  // const favs = [...this.state.favs, {x}]
+  // // console.log(favs + "favs")
+  // this.setState({favs})
+  // console.log(event.starred)
+}
 // var rows = htmlToElements('<tr><td>foo</td></tr><tr><td>bar</td></tr>');
 
   render() {
     const { itemList } = this.props;  
 
     const title = Object.keys(itemList).length !== 0 ? itemList.map((x, index) => {
-      return (<div className="searchResult"><span className="searchResult__title">
-              <i className={x.starred ? "fa fa-star searchResult__icon searchResult__icon--starred" : "fa fa-star searchResult__icon"} aria-hidden="true" id={index}></i>
+      x["index"] = index;
+      return (<div className="searchResult" key={index}><span className="searchResult__title">
+              <i className={x.starred && !x.unstarred ? "fa fa-star searchResult__icon searchResult__icon--starred" : "fa fa-star searchResult__icon"} 
+                  aria-hidden="true" 
+                  id={index}
+                  onClick={() => {this._favoriteItem(x)}}>
+                  </i>
+                  
               <h4 className="searchResult__h4">{x.title}</h4>
               </span>
-              <ul>
-                <li>
-                  {this.domParser(x.body)}
-                </li>
+              <ul className="searchResult__ul">
+                  {this.domParser(x.body).map(x => {
+                    return <li className="liTeste">{x}</li>
+                  })}
+                {/* <li> */}
+                {/* </li> */}
               </ul>
               {/* {x.description} */}
               {/* <ul className="searchResult__ul">
                 {x.description.map(elem => ( <li>{elem}</li> ))}
               </ul> */}
-              </div>)}) : ''      
+              </div>)
+    }) : ''      
 
-  const Favs = this.state.favs ? this.state.favs.map(x => {
-    return (<div className="searchResult"><span className="searchResult__title">
-          <i className={x.starred ? "fa fa-star searchResult__icon searchResult__icon--starred" : "fa fa-star searchResult__icon"} aria-hidden="true"></i>
-          <h4 className="searchResult__h4">{x.title}</h4>
+  const Favs = this.state.favs ? this.state.favs.map((x,index) => {
+    return (<div className="searchResult" key={index}><span className="searchResult__title">
+          <i className={x.x.starred ? "fa fa-star searchResult__icon searchResult__icon--starred" : "fa fa-star searchResult__icon"} 
+          aria-hidden="true"
+          id={index}
+          onClick={() => {this._unfavoriteItem(x.x, x.x.index)}}
+          ></i>
+          <h4 className="searchResult__h4">{x.x.title}</h4>
           </span>
           <ul className="searchResult__ul">
-            {x.description.map(elem => ( <li>{elem}</li> ))}
-          </ul>
-          </div>)}) : ''   
+                  {this.domParser(x.x.body).map(x => {
+                    return <li className="liTeste">{x}</li>
+                  })}
+                {/* <li> */}
+                {/* </li> */}
+              </ul>
+              {/* {x.description} */}
+              {/* <ul className="searchResult__ul">
+                {x.description.map(elem => ( <li>{elem}</li> ))}
+              </ul> */}
+              </div>)
+    }) : ''   
+
+  // const Favs = this.state.favs ? this.state.favs.map(x => {
+  //   return (<div className="searchResult"><span className="searchResult__title">
+  //       <i className={x.starred ? "fa fa-star searchResult__icon searchResult__icon--starred" : "fa fa-star searchResult__icon"} aria-hidden="true"></i>
+  //       <h4 className="searchResult__h4">{x.title}</h4>
+  //       </span>
+  //       <ul className="searchResult__ul">
+  //         {x.description.map(elem => ( <li>{elem}</li> ))}
+  //       </ul>
+  //       </div>)}) : ''   
 
     
     return (
       <div>
         {title}
-        <div className="favouritesWrapper">
-        <h2 className="favourites__h2">Favourites</h2>
-        {Favs}
+        <div className={this.state.favs.length > 0 ? "favouritesWrapper" : 'noFavourites'}>
+          <h2 className="favourites__h2">Favourites</h2>
+          {Favs}
         </div>
       </div>
     )
