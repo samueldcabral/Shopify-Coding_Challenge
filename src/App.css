@@ -1,7 +1,5 @@
 .navbar { 
-  /* position: fixed; */
   display: table;
-  /* top: 0; */
   background: linear-gradient(to right, #2c4692, #00a662);
   width: 100%;
   height: 200px;
@@ -98,4 +96,9 @@
 
 .noFavourites {
   display: none;
+}
+
+.spinner {
+  width: fit-content;
+  margin: auto;
 }

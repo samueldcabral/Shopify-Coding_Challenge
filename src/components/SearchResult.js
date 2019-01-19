@@ -1,80 +1,82 @@
 import React, { Component } from 'react'
+import Spinner from './Spinner'
 
 export default class SearchResult extends Component {
   state = {
-    favs: []   
+    favs: [],
+    starred: []
   }
 
-  // if(regex.exec(x.title) || regex.exec(x.keywords)){
-        //   // title = x.title;
-        //   // temp = new DOMParser().parseFromString(x.body, "text/html");
-        //   // description = temp.documentElement.textContent;
-        //   return x         // resultArr.push(item)
-          // alert('here')
-        // }
-    //   })
-    // });
-    // console.log(resultArr)
-    // console.log("teve")
-    // this.setState({resultArr})
-
-
   getLink = (link) => {
-      let actualLink = link.split("<a href=")[1]
-      actualLink = actualLink.split(`"`)[1]
-      let word = link.split(`">`)[1]
-      word = word.split("</")[0]
-    
-      return {"link": actualLink, "word":word}    
-    }
+  //This is to extract the link and the name 
+    let actualLink = link.split("<a href=")[1]
+    actualLink = actualLink.split(`"`)[1]
+    let word = link.split(`">`)[1]
+    word = word.split("</")[0]
+  
+    return {"link": actualLink, "word":word}    
+  }
 
   convertLink = (text) => {
+    // Char < Ascii Code 60
+    // Char > Ascii Code 62
+    // Char 'a' Ascii Code 97
+
     let max = text.split('')
     let index = []
+
+    //For loop to get the indexes of the start and end of the <a> tags
     for(let i = 0; i < max.length; i++){
-      if(max[i].charCodeAt(0) == 60 && max[i+1].charCodeAt(0) == 97){
+      if(max[i].charCodeAt(0) === 60 && max[i+1].charCodeAt(0) === 97){
         index.push({"first": i})
-      }else if(max[i].charCodeAt(0) == 62 && max[i-1].charCodeAt(0) == 97){
+      }else if(max[i].charCodeAt(0) === 62 && max[i-1].charCodeAt(0) === 97){
         index.push({"second": i})
       }
     }
     return index
   } 
-
+  
   htmlToElements = (html) => {
-      var template = document.createElement('template');
-      template.innerHTML = html;
-      return template.content.childNodes;
+    //Can convert a string to html
+    let template = document.createElement('template');
+    template.innerHTML = html;
+
+    //returns NodeList
+    return template.content.childNodes;
   }
 
   htmlToElement = (html) => {
-    var template = document.createElement('template');
+    //Can convert a string to html
+    let template = document.createElement('template');
     template.innerHTML = html;
+
+    //returns element
     return template.content;
 }
 
-
   sanitizeTxt = (txt) => {
-    let q = txt.split('')
+    //A little helper function to clean the html entitiy
+    let splitText = txt.split('')
     let count = 0;
-    for(let i = 0; i < q.length; i++){
-      if(q[i].charCodeAt(0) === 38){
-        while(q[i].charCodeAt(0) !== 59){
+    
+    for(let i = 0; i < splitText.length; i++){
+      if(splitText[i].charCodeAt(0) === 38){
+        while(splitText[i].charCodeAt(0) !== 59){
           if(count === 0){
-            q[i] = q[i].replace(q[i], ' ')   
+            splitText[i] = splitText[i].replace(splitText[i], ' ')   
           }else{
-            q[i] = q[i].replace(q[i], '')
+            splitText[i] = splitText[i].replace(splitText[i], '')
           }
           count++
           i++
         }
-        if(q[i].charCodeAt(0) === 59){
-          q[i] = q[i].replace(q[i], '')
+        if(splitText[i].charCodeAt(0) === 59){
+          splitText[i] = splitText[i].replace(splitText[i], '')
         }
       }
     }
-    q = q.join('').trim()
-    return q
+    splitText = splitText.join('').trim()
+    return splitText
   }
 
   getBoldWords = (str) => {
@@ -82,199 +84,145 @@ export default class SearchResult extends Component {
     let boldWords = [];
 
     for(let i = 0; i < str.length; i++){
-      if(str[i].includes("<strong>")){
-        // console.log(str[i])
-  
-        let de = str[i].split('<strong>')
-        for(let i = 0; i < de.length; i++){
-          if(de[i].includes("</")){
-            let a = de[i].split('</strong>')
-            boldWords.push(a[0])
+      if(str[i].includes("<strong>")){  
+        let temp = str[i].split('<strong>');
+
+        for(let i = 0; i < temp.length; i++){
+          if(temp[i].includes("</")){
+            let tempFinal = temp[i].split('</strong>')
+            boldWords.push(tempFinal[0])
           }
         }
       }else if(str[i].includes("<b>")){  
-        let de = str[i].split('<b>')
-        for(let i = 0; i < de.length; i++){
-          if(de[i].includes("</")){
-            let a = de[i].split('</b>')
-            boldWords.push(a[0])
+        let temp = str[i].split('<b>')
+        for(let i = 0; i < temp.length; i++){
+          if(temp[i].includes("</")){
+            let tempFinal = temp[i].split('</b>')
+            boldWords.push(tempFinal[0])
           }
         }
       }else if(str[i].includes("</a")){
-        let a = this.htmlToElement(str[i])
-
-        // console.log(a) 
-        var cerant = a.childNodes;
-        // console.log(cerant)
-        // console.log("above")
-
+        let tempFinal = this.htmlToElement(str[i])
+        let nodes = tempFinal.childNodes;
         let temp = []
-        for(let i = 0; i < cerant.length; i++){
-          // console.log(cerant[i], typeof cerant[i], cerant[i].innerHTML, cerant[i].itemList, cerant[i].text)
-          if(cerant[i].innerHTML){
-            // console.log(cerant[i].innerHTML, cerant[i].outerHTML)
-            // result += cerant[i].outerHTML
-            // console.log('bellow')
-            // console.log(cerant[i].href)
-            // result += (<a href="">LOLOLOLOL</a>)
-            temp.push(<a href={cerant[i].href}>{cerant[i].innerHTML}</a>)
+
+        for(let i = 0; i < nodes.length; i++){
+          if(nodes[i].innerHTML){
+            temp.push(<a href={nodes[i].href}>{nodes[i].innerHTML}</a>)
           }else{
-            // console.log(cerant[i].textContent)
-            temp.push(cerant[i].textContent)
+            temp.push(nodes[i].textContent)
           }
-
         }
-        
-        // result = temp.reduce((acc, sum) => acc+=sum)
-        // console.log("the result is " + result)
+
         htmlTotal.push(<p>{temp}</p>)
-        // htmlTotal.push(<li>{result}</li>)
-        // console.log("the result is")
-        // console.log(result)
-        // htmlTotal.push(<li>{a}</li>)
-        // console.log(str[i] + "sauel  samuelae daeau")
-        // let index = this.convertLink(str[i]);
-
-        // for(let i = 0; i < index.length; i++){
-        //   if(i % 2 === 0){
-        //     let sbsrt = str[i].slice(index[i]["first"], index[i+1]["second"])
-        //     alert(sbsrt)
-        //     if(sbsrt.startsWith("<a")){
-        //       let objs = this.getLink(sbsrt)
-        //       let result = str[i].replace(sbsrt, <a href={objs["link"]}> {objs["word"]} </a>)
-        //       htmlTotal.push(<li className="liTeste">{result}</li>)
-
-        //     }
-        //   }
-        // }
       }
     }
     
-
     for(let i = 0; i < str.length; i++){
       if(str[i].includes("<strong>")){
-        let a = str[i].split("<strong>");
+        let temp = str[i].split("<strong>");
 
-        htmlTotal.push(<li className="liTeste">{a[0]}<strong>{boldWords[i]}</strong></li>);
+        htmlTotal.push(<li>{temp[0]}<strong>{boldWords[i]}</strong></li>);
       }
       else if(str[i].includes("<b>")){
-        let a = str[i].split("<b>");
+        let temp = str[i].split("<b>");
 
-        htmlTotal.push(<li className="liTeste">{a[0]}<strong>{boldWords[i]}</strong></li>);
+        htmlTotal.push(<li>{temp[0]}<strong>{boldWords[i]}</strong></li>);
       }
       else if(str[i].includes("</a")){
-        console.log("he")
+        console.log("nothing to see here")
       }
       else {
-        htmlTotal.push(<li className="liTeste">{str[i]}</li>)
+        htmlTotal.push(<li>{str[i]}</li>)
       }
     }
-
     return htmlTotal
   }
 
   domParser = (str) => {
-    let temp = new DOMParser().parseFromString(str, "text/html");
-    let res = this.htmlToElements(temp.documentElement.textContent)
-    // console.log(res)
-    let test = this.htmlToElements(res[0].innerHTML)
-    test = [...test]
-    console.log(test)
-    console.log('-------------------------------------')
-    let final = test.filter(x => x.innerHTML).map(x => x.innerHTML)
-    let thise = final.map(x => this.sanitizeTxt(x))
-    // console.log("thise is" + thise)
+    //To get the string with html elems and covert, sanitize and prepare for rendering
+    let parsedStr = new DOMParser().parseFromString(str, "text/html");
+    let parsedContent = this.htmlToElements(parsedStr.documentElement.textContent)
+    let parsedContentText = this.htmlToElements(parsedContent[0].innerHTML)
+    parsedContentText = [...parsedContentText]
+    let prepTxt = parsedContentText.filter(x => x.innerHTML).map(x => x.innerHTML)
+    let sanitizedTxt = prepTxt.map(x => this.sanitizeTxt(x))
+    let element = this.getBoldWords(sanitizedTxt)
 
-    let bolds = this.getBoldWords(thise)
-    // console.log(bolds +"bolds")
-
-    return bolds
-    // return <h1>samuel</h1>
-    // console.log(regex.exec(temp.documentElement.textContent))
-    // console.log(temp)
-    // return temp.documentElement.textContent
-    // return temp
-    // var el = document.createElement( 'div' );
-    // el.innerHTML = temp.documentElement.textContent;;
-    // return el
+    return element
   }
 
-//     htmlToElement(html) {
-//     var template = document.createElement('template');
-//     html = html.trim(); // Never return a text node of whitespace as the result
-//     template.innerHTML = html;
-//     let result = 
-//     return template.content.firstChild;
-// }
+  _favoriteItem = (x, index) => {
+    //Since the props doesnt have a starred field, I created a little logic to check if said item has been starred
+    //If the result is true, it means that the Item is starred, so it needs to be unstarred
+    let result = this.state.starred.filter(x => {
+      return x.starItem.index === index && x.starItem.starred === true
+    })
 
-// var td = htmlToElement('<td>foo</td>'),
-//     div = htmlToElement('<div><span>nested</span> <span>stuff</span></div>');
+    if(result.length > 0){
+      //Case when the Item is already starred
+      const starItem = {"index": index, "starred": false}
+      let starred = this.state.starred.filter(x => {
+        return x.starItem.index !== index
+      })
+      starred = [...starred, {starItem}]
+      this.setState({starred})   
+      this._unfavoriteItem(x, index)
+     
+    }else{
+      //Case when the Item is not starred
+      const starItem = {"index": index, "starred": true}
+      const starred = [...this.state.starred, { starItem }]
+      const favs = [...this.state.favs, {x}]
+      this.setState({starred})
+      this.setState({favs})
+    }
+  }
 
-_favoriteItem = (x) => {
-  // alert("Clicou na start " + event.target)
-  x["starred"] = true
-  const favs = [...this.state.favs, {x}]
-  // console.log(favs + "favs")
-  this.setState({favs})
-  // console.log(event.starred)
-}
-
-_unfavoriteItem = (x, index) => {
-  // alert("Clicou na start " + event.target)
-  // alert('this is favorite')
-  x["unstarred"] = true
-  // alert(index)
-  // const favs = this.state.favs.filter(x => {
-  //   alert(x.index)})
-    //  !== index)
-  const favs = this.state.favs.filter(x => {
-    // alert(x.x.index + "x.x.index")
-    // alert(index + "index")
-
-    return x.x.index !== index
-  
-  })
-
-  this.setState({favs})
-  // x["starred"] = true
-  // const favs = [...this.state.favs, {x}]
-  // // console.log(favs + "favs")
-  // this.setState({favs})
-  // console.log(event.starred)
-}
-// var rows = htmlToElements('<tr><td>foo</td></tr><tr><td>bar</td></tr>');
+  _unfavoriteItem = (x, index) => { 
+    //to remove an item from the starred list
+    const favs = this.state.favs.filter(x => {
+      return x.x.index !== index
+    })
+      const starItem = {"index": index, "starred": false}
+      let starred = this.state.starred.filter(x => {
+        return x.starItem.index !== index
+      })
+      starred = [...starred, {starItem}]
+      this.setState({starred})   
+      this.setState({favs})
+  }
 
   render() {
-    const { itemList } = this.props;  
-
+    const { itemList, loading } = this.props; 
     const title = Object.keys(itemList).length !== 0 ? itemList.map((x, index) => {
       x["index"] = index;
+      x["starred"] = false;
+      let starred = this.state.starred.filter(x => {
+        return x.starItem.index === index && x.starItem.starred === true
+      })
+      
       return (<div className="searchResult" key={index}><span className="searchResult__title">
-              <i className={x.starred && !x.unstarred ? "fa fa-star searchResult__icon searchResult__icon--starred" : "fa fa-star searchResult__icon"} 
+              <i className={starred.length > 0 ? "fa fa-star searchResult__icon searchResult__icon--starred" : "fa fa-star searchResult__icon"} 
                   aria-hidden="true" 
                   id={index}
-                  onClick={() => {this._favoriteItem(x)}}>
+                  onClick={() => {this._favoriteItem(x, index)}}>
                   </i>
                   
               <h4 className="searchResult__h4">{x.title}</h4>
               </span>
               <ul className="searchResult__ul">
                   {this.domParser(x.body).map(x => {
-                    return <li className="liTeste">{x}</li>
+                    return <li>{x}</li>
                   })}
-                {/* <li> */}
-                {/* </li> */}
               </ul>
-              {/* {x.description} */}
-              {/* <ul className="searchResult__ul">
-                {x.description.map(elem => ( <li>{elem}</li> ))}
-              </ul> */}
               </div>)
     }) : ''      
 
   const Favs = this.state.favs ? this.state.favs.map((x,index) => {
+    let starred = this.state.starred.filter(x => x.starItem.index === index)
     return (<div className="searchResult" key={index}><span className="searchResult__title">
-          <i className={x.x.starred ? "fa fa-star searchResult__icon searchResult__icon--starred" : "fa fa-star searchResult__icon"} 
+          <i className={starred.length > 0 ? "fa fa-star searchResult__icon searchResult__icon--starred" : "fa fa-star searchResult__icon"} 
           aria-hidden="true"
           id={index}
           onClick={() => {this._unfavoriteItem(x.x, x.x.index)}}
@@ -283,30 +231,13 @@ _unfavoriteItem = (x, index) => {
           </span>
           <ul className="searchResult__ul">
                   {this.domParser(x.x.body).map(x => {
-                    return <li className="liTeste">{x}</li>
+                    return <li>{x}</li>
                   })}
-                {/* <li> */}
-                {/* </li> */}
-              </ul>
-              {/* {x.description} */}
-              {/* <ul className="searchResult__ul">
-                {x.description.map(elem => ( <li>{elem}</li> ))}
-              </ul> */}
-              </div>)
+          </ul>
+          </div>)
     }) : ''   
-
-  // const Favs = this.state.favs ? this.state.favs.map(x => {
-  //   return (<div className="searchResult"><span className="searchResult__title">
-  //       <i className={x.starred ? "fa fa-star searchResult__icon searchResult__icon--starred" : "fa fa-star searchResult__icon"} aria-hidden="true"></i>
-  //       <h4 className="searchResult__h4">{x.title}</h4>
-  //       </span>
-  //       <ul className="searchResult__ul">
-  //         {x.description.map(elem => ( <li>{elem}</li> ))}
-  //       </ul>
-  //       </div>)}) : ''   
-
-    
-    return (
+  
+    return loading ? ( <Spinner /> ) : (
       <div>
         {title}
         <div className={this.state.favs.length > 0 ? "favouritesWrapper" : 'noFavourites'}>
