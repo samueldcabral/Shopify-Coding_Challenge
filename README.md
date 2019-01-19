@@ -18,7 +18,7 @@
 | Perform a keyword search when clicking on the icon or pressing enter      | Working |
 | When input field is cleared, the results are cleared    | Working |
 | You can favorite one or more result by clicking on the star icon | Working |
-| You can remove an item from the favorites by clicking on the green star icon in the favs section | Working |
+| You can remove an item from the favorites by clicking on the green star icon | Working |
 
 ### Check it out at the link below
 [Shopify Web Engineer Challenge](https://cdn.shopify.com/static/web-eng-challenge-summer-2019/index.md "Web Engineer Challenge")
